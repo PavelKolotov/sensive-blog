@@ -11,10 +11,31 @@ class PostQuerySet(models.QuerySet):
         return posts_at_year
 
 
+    def popular(self):
+        posts_popular = self.annotate(likes_count=Count('likes')).order_by('-likes_count')
+        return posts_popular
+
+
+    def fetch_with_comments_count(self):
+        most_popular_posts_ids = [post.id for post in self]
+        posts_with_comments = Post.objects.filter(id__in=most_popular_posts_ids).annotate(
+            comments_count=Count('comments'))
+        ids_and_comments = posts_with_comments.values_list('id', 'comments_count')
+        count_for_id = dict(ids_and_comments)
+        for post in self:
+            post.comments_count = count_for_id[post.id]
+        return list(self)
+
+
+
+
+
 class TagQuerySet(models.QuerySet):
     def popular(self):
         posts_popular = self.annotate(posts_count=Count('posts')).order_by('-posts_count')
         return posts_popular
+
+
 
 
 class Post(models.Model):
