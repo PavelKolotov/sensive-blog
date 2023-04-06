@@ -4,25 +4,17 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 
 
-
-
 class PostQuerySet(models.QuerySet):
     def year(self, year):
         posts_at_year = self.filter(published_at__year=year).order_by('published_at')
         return posts_at_year
 
-
     def popular(self):
         posts_popular = self.annotate(likes_count=Count('likes')).order_by('-likes_count')
         return posts_popular
 
-
-
-
     def fetch_with_comments_count(self):
-        ''' функция используется в случае получения основного QuerySet с помощью 'annotate',
-         чтобы не создавать большую нагрузку на БД
-        '''
+        # функция используется вместе с 'annotate', чтобы не создавать большую нагрузку на БД
 
         most_popular_posts_ids = [post.id for post in self]
         posts_with_comments = Post.objects.filter(id__in=most_popular_posts_ids).annotate(
@@ -34,15 +26,10 @@ class PostQuerySet(models.QuerySet):
         return self
 
 
-
-
-
 class TagQuerySet(models.QuerySet):
     def popular(self):
         posts_popular = self.annotate(posts_count=Count('posts')).order_by('-posts_count')
         return posts_popular
-
-
 
 
 class Post(models.Model):
