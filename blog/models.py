@@ -5,6 +5,7 @@ from django.db.models import Count
 
 
 
+
 class PostQuerySet(models.QuerySet):
     def year(self, year):
         posts_at_year = self.filter(published_at__year=year).order_by('published_at')
@@ -14,6 +15,8 @@ class PostQuerySet(models.QuerySet):
     def popular(self):
         posts_popular = self.annotate(likes_count=Count('likes')).order_by('-likes_count')
         return posts_popular
+
+
 
 
     def fetch_with_comments_count(self):
